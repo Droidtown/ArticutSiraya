@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
-
 import re
 
 class XP:
@@ -21,19 +20,19 @@ class OBL(XP):
 class ArticutSiraya:
     def __init__(self):
         self.inputSTR = None
+        self.tagDICT = {}
         self.OBL = OBL()
         self.OBLpat = re.compile(r"\bki\b", re.IGNORECASE)
         return None
 
     def oblMarker(self):
-        return re.sub(self.OBLpat, "<{TAG}>ki</{TAG}}>".format({"TAG":self.OBL.TagSTR}), self.inputSTR)
+        self.tagDICT = {"TAG":self.OBL.TagSTR}
+        return re.sub(self.OBLpat, "<{TAG}>ki</{TAG}>".format(**self.tagDICT), self.inputSTR)
 
     def parse(self, inputSTR, level="lv1"):
         self.inputSTR = inputSTR
         self.inputSTR = self.oblMarker()
-
         return self.inputSTR
-
 
 if __name__ == "__main__":
     inputSTR = "Sulat ki kavuilan ti Jesus Christus"
