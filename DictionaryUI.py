@@ -12,14 +12,23 @@ from textual.containers import VerticalScroll
 from textual.widgets import Input, Markdown
 
 
-#amisDICT_01 = json.load(open("dictionary/dict-amis.json", encoding="utf-8"))
-amisDICT_01 = {"seni'":{"definitions":[{"synonyms":["`taktak~"],
-                                        "def":"to pour out￻傾倒".replace("￻", " ")},
-                                       {"def":"for something to settle down and shrink in size * as salted vegetables in an earthen vessel￻東西沉澱或收縮狀如鹹菜在缸器內放很久後會收縮".replace("￻", " ")}]}
-               }
-amisDICT_02 = json.load(open("dictionary/dict-amis.json", encoding="utf-8"))
-amisDICT_03 = json.load(open("dictionary/dict-amis.json", encoding="utf-8"))
-sirayaDICT  = json.load(open("dictionary/dict-amis.json", encoding="utf-8"))
+def load_dictionary(file_path: str) -> dict:
+    data = json.load(open(file_path, encoding="utf-8"))
+    return {f"{item['title']}": {
+        "definitions": [
+            {
+                "synonyms": definition.get("synonyms", []),
+                "def": definition.get("def", "").replace("￻", " ").replace("￹", " ").replace("￺", " ")
+            }
+            for definition in item["heteronyms"][0].get("definitions", [])
+        ]
+    }
+    for item in data}
+amisDICT_01 = load_dictionary("dictionary/dict-amis.json")
+amisDICT_02 = load_dictionary("dictionary/dict-amis-safolu.json")
+#amisDICT_03 = load_dictionary("dictionary/dict-concised.audio.json")
+siraya_data = json.load(open("dictionary/dict.jenny.json", encoding="utf-8"))
+sirayaDICT = {f"{item['title']}": {"definitions": item["heteronyms"][0].get("definitions", [])} for item in siraya_data}
 
 class DictionaryApp(App):
     """Searches a dictionary API as-you-type."""
@@ -46,20 +55,26 @@ class DictionaryApp(App):
     async def lookup_dictionary(self, word: str) -> None:  #if "[" "]" "_" "CVN" => string ; => regex
         resultLIST = []
         resultLIST.append("# Amis Dictionary")
-        if word in amisDICT_01:
-            for i in amisDICT_01[word]["definitions"]:
-                resultLIST.append("## Definition:")
-                resultLIST.append(i["def"])
-                try:
-                    resultLIST.append("## Synonyms:")
-                    resultLIST.append("\n".join(i["synonyms"]))
-                except:
-                    pass
-
+        def process_dictionary(word, dictionary, resultLIST):
+            if word in dictionary:
+                for i in dictionary[word]["definitions"]:
+                    resultLIST.append("## Definition:")
+                    resultLIST.append(i["def"])
+                    try:
+                        resultLIST.append("## Synonyms:")
+                        resultLIST.append("\n".join(i["synonyms"]))
+                    except:
+                        pass
+        process_dictionary(word, amisDICT_01, resultLIST)
+        process_dictionary(word, amisDICT_02, resultLIST)
+        
+        resultLIST.append("# Siraya Dictionary")
         if word in sirayaDICT:
             resultLIST.append("## Definition:")
-            resultLIST.append(sirayaDICT[word]["def"])
-
+            resultLIST.append(sirayaDICT[word]["definitions"][0]["def"])
+            resultLIST.append("## Synonyms:")
+            resultLIST.append("\n".join(sirayaDICT[word]["definitions"][0]["synonyms"]))
+                       
         if word == self.query_one(Input).value:
             #markdown = self.make_word_markdown("\n".join(resultLIST))
             self.query_one("#results", Markdown).update("\n".join(resultLIST))
