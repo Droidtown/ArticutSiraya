@@ -7,6 +7,19 @@ Input {
     margin: 1 0;
 }
 
+#head-container {
+    background: $background 50%;
+    margin: 0 0 0 0;
+    
+    border: tall $background;
+    height: 1;
+}
+.head {
+    width: 50%;
+    border: solid red; 
+
+}
+
 #amis-results {
     width: 100%;
     height: 100%;    

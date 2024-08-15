@@ -8,9 +8,8 @@ except ImportError:
 import json
 from textual import work
 from textual.app import App, ComposeResult
-from textual.containers import VerticalScroll, HorizontalScroll
-from textual.widgets import Input, Markdown
-
+from textual.containers import VerticalScroll, HorizontalScroll, Container
+from textual.widgets import Input, Markdown, Footer, Label
 
 
 def load_dictionary(file_path: str) -> dict:
@@ -31,14 +30,26 @@ class DictionaryApp(App):
     """Searches a dictionary API as-you-type."""
 
     CSS_PATH = "css/dictionary.tcss"
-
+    BINDINGS = [
+        ("ctrl+q", "quit", "Quit"),
+    ]
     def compose(self) -> ComposeResult:
+        # <Need more work here>
         yield Input(placeholder="Search for a word")
+        with HorizontalScroll(id="head-container"):
+            with Container(classes="head"):
+                yield Label("Amis Dictionary")
+            with Container(classes="head"):
+                yield Label("Siraya Dictionary")
+        # </Need more work here>
+
         with HorizontalScroll(id="results-container"):
             with VerticalScroll(classes="scroll"):
                 yield Markdown(id="amis-results")
             with VerticalScroll(classes="scroll"):
                 yield Markdown(id="siraya-results")
+        yield Footer()
+
 
     async def on_input_changed(self, message: Input.Changed) -> None:
         """A coroutine to handle a text changed message."""
@@ -55,7 +66,7 @@ class DictionaryApp(App):
     @work(exclusive=True)
     async def lookup_dictionary(self, word: str) -> None:  #if "[" "]" "_" "CVN" => string ; => regex
         resultLIST = []
-        resultLIST.append("# Amis Dictionary")
+        resultLIST.append("# 🅰️ mis Dictionary")
         def process_dictionary(word, dictionary, resultLIST):
             if word in dictionary:
                 for i in dictionary[word]["definitions"]:
@@ -73,7 +84,7 @@ class DictionaryApp(App):
             self.query_one("#amis-results", Markdown).update("\n".join(resultLIST))
 
         resultLIST = []
-        resultLIST.append("# Siraya Dictionary")
+        resultLIST.append("# 🇸 iraya Dictionary #")
         if word in sirayaDICT:
             resultLIST.append("## Definition:")
             resultLIST.append(sirayaDICT[word]["definitions"][0]["def"])
