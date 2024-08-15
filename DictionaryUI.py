@@ -8,8 +8,9 @@ except ImportError:
 import json
 from textual import work
 from textual.app import App, ComposeResult
-from textual.containers import VerticalScroll
+from textual.containers import VerticalScroll, HorizontalScroll
 from textual.widgets import Input, Markdown
+
 
 
 def load_dictionary(file_path: str) -> dict:
@@ -24,11 +25,7 @@ def load_dictionary(file_path: str) -> dict:
         ]
     }
     for item in data}
-amisDICT_01 = load_dictionary("dictionary/dict-amis.json")
-amisDICT_02 = load_dictionary("dictionary/dict-amis-safolu.json")
-#amisDICT_03 = load_dictionary("dictionary/dict-concised.audio.json")
-siraya_data = json.load(open("dictionary/dict.jenny.json", encoding="utf-8"))
-sirayaDICT = {f"{item['title']}": {"definitions": item["heteronyms"][0].get("definitions", [])} for item in siraya_data}
+
 
 class DictionaryApp(App):
     """Searches a dictionary API as-you-type."""
@@ -37,8 +34,11 @@ class DictionaryApp(App):
 
     def compose(self) -> ComposeResult:
         yield Input(placeholder="Search for a word")
-        with VerticalScroll(id="results-container"):
-            yield Markdown(id="results")
+        with HorizontalScroll(id="results-container"):
+            with VerticalScroll(classes="scroll"):
+                yield Markdown(id="amis-results")
+            with VerticalScroll(classes="scroll"):
+                yield Markdown(id="siraya-results")
 
     async def on_input_changed(self, message: Input.Changed) -> None:
         """A coroutine to handle a text changed message."""
@@ -47,7 +47,8 @@ class DictionaryApp(App):
             self.lookup_dictionary(message.value)
         else:
             # Clear the results
-            await self.query_one("#results", Markdown).update("")
+            await self.query_one("#amis-results", Markdown).update("")
+            await self.query_one("#siraya-results", Markdown).update("")
 
 
 # #Do our look-up here!   .*kan.*
@@ -67,17 +68,21 @@ class DictionaryApp(App):
                         pass
         process_dictionary(word, amisDICT_01, resultLIST)
         process_dictionary(word, amisDICT_02, resultLIST)
-        
+        if word == self.query_one(Input).value:
+            #markdown = self.make_word_markdown("\n".join(resultLIST))
+            self.query_one("#amis-results", Markdown).update("\n".join(resultLIST))
+
+        resultLIST = []
         resultLIST.append("# Siraya Dictionary")
         if word in sirayaDICT:
             resultLIST.append("## Definition:")
             resultLIST.append(sirayaDICT[word]["definitions"][0]["def"])
             resultLIST.append("## Synonyms:")
             resultLIST.append("\n".join(sirayaDICT[word]["definitions"][0]["synonyms"]))
-                       
+
         if word == self.query_one(Input).value:
             #markdown = self.make_word_markdown("\n".join(resultLIST))
-            self.query_one("#results", Markdown).update("\n".join(resultLIST))
+            self.query_one("#siraya-results", Markdown).update("\n".join(resultLIST))
 
 
     @work(exclusive=True)
@@ -118,5 +123,12 @@ class DictionaryApp(App):
 
 
 if __name__ == "__main__":
+
+    amisDICT_01 = load_dictionary("dictionary/dict-amis.json")
+    amisDICT_02 = load_dictionary("dictionary/dict-amis-safolu.json")
+    #amisDICT_03 = load_dictionary("dictionary/dict-concised.audio.json")
+    siraya_data = json.load(open("dictionary/dict.jenny.json", encoding="utf-8"))
+    sirayaDICT = {f"{item['title']}": {"definitions": item["heteronyms"][0].get("definitions", [])} for item in siraya_data}
+
     app = DictionaryApp()
     app.run()
