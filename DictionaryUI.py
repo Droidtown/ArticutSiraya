@@ -12,9 +12,9 @@ from textual.containers import VerticalScroll, HorizontalScroll, Container
 from textual.widgets import Input, Markdown, Footer, Label
 
 
-def load_dictionary(file_path: str) -> dict:
+def load_amis_dictionary(file_path: str) -> dict:
     data = json.load(open(file_path, encoding="utf-8"))
-    return {f"{item['title']}": {
+    result = {f"{item['title']}": {
         "definitions": [
             {
                 "synonyms": definition.get("synonyms", []),
@@ -24,7 +24,14 @@ def load_dictionary(file_path: str) -> dict:
         ]
     }
     for item in data}
+    return result
 
+def load_siraya_dictionary(file_path: str) -> dict:
+    data = json.load(open(file_path, encoding="utf-8"))
+    result = {f"{item['title']}": {
+        "definitions": item["heteronyms"][0].get("definitions", [])}
+    for item in data}
+    return result
 
 class DictionaryApp(App):
     """Searches a dictionary API as-you-type."""
@@ -85,11 +92,14 @@ class DictionaryApp(App):
 
         resultLIST = []
         resultLIST.append("# 🇸 iraya Dictionary #")
-        if word in sirayaDICT:
-            resultLIST.append("## Definition:")
-            resultLIST.append(sirayaDICT[word]["definitions"][0]["def"])
-            resultLIST.append("## Synonyms:")
-            resultLIST.append("\n".join(sirayaDICT[word]["definitions"][0]["synonyms"]))
+        def process_siraya_dictionary(word, dictionary, resultLIST):
+            if word in dictionary:
+                resultLIST.append("## Definition:")
+                resultLIST.append(dictionary[word]["definitions"][0]["def"])
+                resultLIST.append("## Synonyms:")
+                resultLIST.append("\n".join(dictionary[word]["definitions"][0]["synonyms"]))
+        process_siraya_dictionary(word, sirayaDICT_01, resultLIST)
+        process_siraya_dictionary(word, sirayaDICT_02, resultLIST)
 
         if word == self.query_one(Input).value:
             #markdown = self.make_word_markdown("\n".join(resultLIST))
@@ -135,11 +145,11 @@ class DictionaryApp(App):
 
 if __name__ == "__main__":
 
-    amisDICT_01 = load_dictionary("dictionary/dict-amis.json")
-    amisDICT_02 = load_dictionary("dictionary/dict-amis-safolu.json")
+    amisDICT_01 = load_amis_dictionary("dictionary/dict-amis.json")
+    amisDICT_02 = load_amis_dictionary("dictionary/dict-amis-safolu.json")
     #amisDICT_03 = load_dictionary("dictionary/dict-concised.audio.json")
-    siraya_data = json.load(open("dictionary/dict.jenny.json", encoding="utf-8"))
-    sirayaDICT = {f"{item['title']}": {"definitions": item["heteronyms"][0].get("definitions", [])} for item in siraya_data}
-
+    sirayaDICT_01 = load_siraya_dictionary("dictionary/dict.jenny.json")
+    sirayaDICT_02 = load_siraya_dictionary("dictionary/dict.jenny2.json")
+    
     app = DictionaryApp()
     app.run()
