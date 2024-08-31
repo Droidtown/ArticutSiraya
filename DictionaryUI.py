@@ -3,7 +3,7 @@ from __future__ import annotations
 try:
     import httpx
 except ImportError:
-    raise ImportError("Please install httpx with "pip install httpx" ")
+    raise ImportError("Please install httpx with 'pip install httpx' ")
 
 import json
 import logging
@@ -21,37 +21,50 @@ from textual.app import App, ComposeResult
 from textual.containers import VerticalScroll, HorizontalScroll, Container
 from textual.widgets import Input, Markdown, Footer, Label
 
-patternDICT = {"C":"[bcdfghjklmnpqrstvxz]",
-               "V":"[aeiuowyj]",
-               "N":"([mn]|ng)",
-               "L":"[rl]",
-               "B":"[bpdtkg]"
-               }   # NaV => ["mab", "map", "mad", "mat"...]
-                   # Bob
-                   #   queryLIST = []
-                   #   for char in word:
-                   #       if char in patternDICT:
-                   #           queryLIST.append(patternDICT[char])  #[bpdtkg]
-                   #       else:
-                   #           queryLIST.append(char)               #[bpdtkg]ob
-                   #   querySTR = "".join(queryLIST)
-                   #   queryPat = re.compile(querySTR)
-                   #   for k in dictionary:
-                   #       if queryPat.findall(k) != []:  #[q for q in queryPat.finditer(k)]
-                   #           for i in dictionary[k]["definitions"]:
-                   #               resultLIST.append("## Definition:")
-                   #               resultLIST.append(i["def"])
-                   #               try:
-                   #                   resultLIST.append("## Synonyms:")
-                   #                   resultLIST.append("\n".join(i["synonyms"]))
-                   #               except:
-                   #                   pass
-                   #    except:
-                   #        resultLIST.append(f"UNKNOWN ERROR")
+def regex_search(word, dictionary, resultLIST, is_amis=True):
+    patternDICT = {"C":"[bcdfghjklmnpqrstvxz]",
+                   "V":"[aeiuowyj]",
+                   "N":"([mn]|ng)",
+                   "L":"[rl]",
+                   "B":"[bpdtkg]"
+                   }
+    #NaV => ["mab", "map", "mad", "mat"...]
+    #Bob
+    queryLIST = []
+    for char in word:
+        if char in patternDICT:
+            queryLIST.append(patternDICT[char])  #[bpdtkg]
+        else:
+            queryLIST.append(char)               #[bpdtkg]ob
+    querySTR = "".join(queryLIST)
+    queryPat = re.compile(querySTR)
+    for k in dictionary:
+        try:
+            matches = [q for q in queryPat.finditer(k)] #queryPat.findall(k) != []:
+            if matches:  
+                resultLIST.append(f"## Match: {k}")
+                if is_amis:
+                    for i in dictionary[k]["definitions"]:
+                        resultLIST.append("## Definition:")
+                        resultLIST.append(i["def"])
+                        try:
+                            resultLIST.append("## Synonyms:")
+                            resultLIST.append("\n".join(i["synonyms"]))
+                        except:
+                            pass
+                else:
+                    resultLIST.append("## Definition:")
+                    resultLIST.append(dictionary[k]["definitions"][0]["def"])
+                    resultLIST.append("## Synonyms:")
+                    resultLIST.append("\n".join(dictionary[k]["definitions"][0]["synonyms"]))                
+        except KeyError:
+            resultLIST.append("ENTRY NOT FOUND")
+        except Exception as e:
+            resultLIST.append(f"UNKNOWN ERROR: {str(e)}")
 
 def load_amis_dictionary(file_path: str) -> dict:
     data = json.load(open(file_path, encoding="utf-8"))
-    result = {f"{item["title"]}": {
+    result = {f"{item['title']}": {
         "definitions": [
             {
                 "synonyms": definition.get("synonyms", []),
@@ -65,7 +78,7 @@ def load_amis_dictionary(file_path: str) -> dict:
 
 def load_siraya_dictionary(file_path: str) -> dict:
     data = json.load(open(file_path, encoding="utf-8"))
-    result = {f"{item["title"]}": {
+    result = {f"{item['title']}": {
         "definitions": item["heteronyms"][0].get("definitions", [])}
     for item in data}
     return result
@@ -122,7 +135,8 @@ class DictionaryApp(App):
                     except:
                         pass
             #<regex search here>
-
+            else:
+                regex_search(word, dictionary, resultLIST, is_amis=True)
             #</regex search here>
         #logger.debug(amisDICT_01)
         process_dictionary(word, amisDICT_01, resultLIST)
@@ -140,7 +154,8 @@ class DictionaryApp(App):
                 resultLIST.append("## Synonyms:")
                 resultLIST.append("\n".join(dictionary[word]["definitions"][0]["synonyms"]))
             #<regex search here>
-
+            else:
+                regex_search(word, dictionary, resultLIST, is_amis=False)
             #</regex search here>
         process_siraya_dictionary(word, sirayaDICT_01, resultLIST)
         process_siraya_dictionary(word, sirayaDICT_02, resultLIST)
@@ -171,17 +186,17 @@ class DictionaryApp(App):
         """Convert the results in to markdown."""
         lines = []
         if isinstance(results, dict):
-            lines.append(f"# {results["title"]}")
+            lines.append(f"# {results['title']}")
             lines.append(results["message"])
         elif isinstance(results, list):
             for result in results:
-                lines.append(f"# {result["word"]}")
+                lines.append(f"# {result['word']}")
                 lines.append("")
                 for meaning in result.get("meanings", []):
-                    lines.append(f"_{meaning["partOfSpeech"]}_")
+                    lines.append(f"_{meaning['partOfSpeech']}_")
                     lines.append("")
                     for definition in meaning.get("definitions", []):
-                        lines.append(f" - {definition["definition"]}")
+                        lines.append(f" - {definition['definition']}")
                     lines.append("---")
 
         return "\n".join(lines)
