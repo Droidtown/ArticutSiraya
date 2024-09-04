@@ -37,30 +37,48 @@ def regex_search(word, dictionary, resultLIST, is_amis=True):
         else:
             queryLIST.append(char)               #[bpdtkg]ob
     querySTR = "".join(queryLIST)
+    #logger.debug(querySTR)
     queryPat = re.compile(querySTR)
-    for k in dictionary:
-        try:
-            matches = [q for q in queryPat.finditer(k)] #queryPat.findall(k) != []:
-            if matches:  
+    keySTR = "\n".join([k for k in dictionary])
+    matches = set([q.group(0) for q in queryPat.finditer(keySTR)]) #queryPat.findall(k) != []:
+    matches = sorted(matches)
+#    try:
+        #logger.debug(matches)
+    if matches:
+        for k in matches:
+
                 resultLIST.append(f"## Match: {k}")
                 if is_amis:
                     for i in dictionary[k]["definitions"]:
                         resultLIST.append("## Definition:")
                         resultLIST.append(i["def"])
+                        resultLIST.append("============")
                         try:
                             resultLIST.append("## Synonyms:")
                             resultLIST.append("\n".join(i["synonyms"]))
                         except:
                             pass
                 else:
-                    resultLIST.append("## Definition:")
-                    resultLIST.append(dictionary[k]["definitions"][0]["def"])
-                    resultLIST.append("## Synonyms:")
-                    resultLIST.append("\n".join(dictionary[k]["definitions"][0]["synonyms"]))                
-        except KeyError:
-            resultLIST.append("ENTRY NOT FOUND")
-        except Exception as e:
-            resultLIST.append(f"UNKNOWN ERROR: {str(e)}")
+                    try:
+                        resultLIST.append("## Definition:")
+                        resultLIST.append(dictionary[k]["definitions"][0]["def"])
+                        resultLIST.append("## Synonyms:")
+                        resultLIST.append("\n".join(dictionary[k]["definitions"][0]["synonyms"]))
+                        resultLIST.append("============")
+                    except KeyError:
+                        #for entry in dictionary:
+                        #    if k in entry:
+                        #        resultLIST.append("## Definition:")
+                        #        resultLIST.append(dictionary[entry]["definitions"][0]["def"])
+                        #        resultLIST.append("## Synonyms:")
+                        #        resultLIST.append("\n".join(dictionary[entry]["definitions"][0]["synonyms"]))
+                        #        resultLIST.append("============")
+    else:
+        pass
+        #resultLIST.append("ENTRY NOT FOUND")
+
+    #except Exception as e:
+        #resultLIST.append(f"UNKNOWN ERROR: {str(e)}")
 
 def load_amis_dictionary(file_path: str) -> dict:
     data = json.load(open(file_path, encoding="utf-8"))
