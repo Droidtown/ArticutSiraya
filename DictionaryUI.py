@@ -46,18 +46,30 @@ def regex_search(word, dictionary, resultLIST, is_amis=True):
         #logger.debug(matches)
     if matches:
         for k in matches:
-
-                resultLIST.append(f"## Match: {k}")
+                #resultLIST.append(f"## Match: {k}")
                 if is_amis:
-                    for i in dictionary[k]["definitions"]:
-                        resultLIST.append("## Definition:")
-                        resultLIST.append(i["def"])
-                        resultLIST.append("============")
-                        try:
-                            resultLIST.append("## Synonyms:")
-                            resultLIST.append("\n".join(i["synonyms"]))
-                        except:
-                            pass
+                    try:
+                        for i in dictionary[k]["definitions"]:
+                            resultLIST.append("## Definition:")
+                            resultLIST.append(i["def"])
+                            resultLIST.append("============")
+                            try:
+                                resultLIST.append("## Synonyms:")
+                                resultLIST.append("\n".join(i["synonyms"]))
+                            except:
+                                pass
+                    except KeyError:
+                        for entry in dictionary:
+                            if k in entry:
+                                resultLIST.append(f"## Match Entry: {entry}")
+                                for i in dictionary[entry]["definitions"]:
+                                        resultLIST.append("## Definition:")
+                                        resultLIST.append(i["def"])
+                                        try:
+                                            resultLIST.append("## Synonyms:")
+                                            resultLIST.append("\n".join(i["synonyms"]))
+                                        except:
+                                            pass                              
                 else:
                     try:
                         resultLIST.append("## Definition:")
@@ -66,13 +78,14 @@ def regex_search(word, dictionary, resultLIST, is_amis=True):
                         resultLIST.append("\n".join(dictionary[k]["definitions"][0]["synonyms"]))
                         resultLIST.append("============")
                     except KeyError:
-                        #for entry in dictionary:
-                        #    if k in entry:
-                        #        resultLIST.append("## Definition:")
-                        #        resultLIST.append(dictionary[entry]["definitions"][0]["def"])
-                        #        resultLIST.append("## Synonyms:")
-                        #        resultLIST.append("\n".join(dictionary[entry]["definitions"][0]["synonyms"]))
-                        #        resultLIST.append("============")
+                        for entry in dictionary:
+                            if k in entry:
+                                resultLIST.append(f"## Match Entry: {entry}")
+                                resultLIST.append("## Definition:")
+                                resultLIST.append(dictionary[entry]["definitions"][0]["def"])
+                                resultLIST.append("## Synonyms:")
+                                resultLIST.append("\n".join(dictionary[entry]["definitions"][0]["synonyms"]))
+                                resultLIST.append("============")
     else:
         pass
         #resultLIST.append("ENTRY NOT FOUND")
