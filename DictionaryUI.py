@@ -16,10 +16,10 @@ logger.setLevel(logging.DEBUG)
 fh = logging.FileHandler("dictionary.log")
 fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
-from pprint import pprint
+#from pprint import pprint
 import re
-import string
-from textual import work
+#import string
+from textual import work, on
 from textual.app import App, ComposeResult
 from textual.containers import VerticalScroll, HorizontalScroll, Container
 from textual.widgets import Input, Markdown, Footer, Label
@@ -272,44 +272,43 @@ class DictionaryApp(App):
                 yield Markdown(id="siraya-results")
         yield Footer()
 
-
-    async def on_input_changed(self, message: Input.Changed) -> None:
+    @on(Input.Submitted)
+    async def on_input_changed(self) -> None:
         """A coroutine to handle a text changed message."""
-        if message.value:
-            #self.lookup_word(message.value)
-            self.lookup_dictionary(message.value)
+        input = self.query_one(Input)
+        word = input.value
+        if word:
+            self.lookup_dictionary(word)
         else:
             # Clear the results
             await self.query_one("#amis-results", Markdown).update("")
             await self.query_one("#siraya-results", Markdown).update("")
 
-
     # #Do our look-up here!   .*kan.*
     @work(exclusive=True)
     async def lookup_dictionary(self, word: str) -> None:  #if "[" "]" "_" "CVN" => string ; => regex
 
-        if word == self.query_one(Input).value:
-            resultLIST = []
-            logger.warn(word)
-            resultLIST.append("# Amis Dictionary")
-            if set("CVNLB").intersection(word):
-                resultLIST.extend(FuzzyQuery(word, dictSTR="amis"))
-            elif "?" in word:
-                resultLIST.extend(PartialQuery(word, dictSTR="amis"))
-            else:
-                resultLIST.extend(MatchingQuery([word], dictSTR="amis"))
-            self.query_one("#amis-results", Markdown).update("\n".join(resultLIST))
+        resultLIST = []
+        logger.debug(word)
+        resultLIST.append("# Amis Dictionary")
+        if set("CVNLB").intersection(word):
+            resultLIST.extend(FuzzyQuery(word, dictSTR="amis"))
+        elif "?" in word:
+            resultLIST.extend(PartialQuery(word, dictSTR="amis"))
+        else:
+            resultLIST.extend(MatchingQuery([word], dictSTR="amis"))
+        self.query_one("#amis-results", Markdown).update("\n".join(resultLIST))
 
-            resultLIST = []
-            resultLIST.append("# Siraya Dictionary #")
-            if set("CVNLB").intersection(word):
-                resultLIST.extend(FuzzyQuery(word, dictSTR="siraya"))
-            elif "?" in word:
-                resultLIST.extend(PartialQuery(word, dictSTR="siraya"))
-            else:
-                resultLIST.extend(MatchingQuery([word], dictSTR="siraya"))
+        resultLIST = []
+        resultLIST.append("# Siraya Dictionary #")
+        if set("CVNLB").intersection(word):
+            resultLIST.extend(FuzzyQuery(word, dictSTR="siraya"))
+        elif "?" in word:
+            resultLIST.extend(PartialQuery(word, dictSTR="siraya"))
+        else:
+            resultLIST.extend(MatchingQuery([word], dictSTR="siraya"))
 
-            self.query_one("#siraya-results", Markdown).update("\n".join(resultLIST))
+        self.query_one("#siraya-results", Markdown).update("\n".join(resultLIST))
 
 
     #@work(exclusive=True)
