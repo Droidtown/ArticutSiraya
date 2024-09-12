@@ -257,12 +257,12 @@ class DictionaryApp(App):
     ]
     def compose(self) -> ComposeResult:
         # <Need more work here>
-        yield Input(placeholder="Search for a word")
-        with HorizontalScroll(id="head-container"):
-            with Container(classes="head"):
-                yield Label("Amis Dictionary")
-            with Container(classes="head"):
-                yield Label("Siraya Dictionary")
+        yield Input(placeholder="Look up a word, then press [Enter]!")
+        #with HorizontalScroll(id="head-container"):
+            #with Container(classes="head"):
+                #yield Markdown("Amis Dictionary")
+            #with Container(classes="head"):
+                #yield Markdown("Siraya Dictionary")
         # </Need more work here>
 
         with HorizontalScroll(id="results-container"):
