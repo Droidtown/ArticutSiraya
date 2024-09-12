@@ -114,24 +114,24 @@ def FuzzyQuery(word, dictSTR="amis") -> list:   #NCaN
     if dictSTR == "amis":
         matches_amis = queryPat.findall(keySTR_amis)
         matches_amis = sorted(matches_amis)
-    if matches_amis:
-        for k in matches_amis:
-            if k in amisDICT_01:
-                for content in amisDICT_01[k]["definitions"]:
-                    resultLIST.append(f"## Match Entry: {k}")
-                    resultLIST.append("## Definition:")
-                    resultLIST.append(content["def"])
-                    resultLIST.append("## Synonyms:")
-                    resultLIST.append("\n".join(content["synonyms"]))
-                    resultLIST.append("============")
-            if k in amisDICT_02:
-                for content in amisDICT_02[k]["definitions"]:
-                    resultLIST.append(f"## Match Entry: {k}")
-                    resultLIST.append("## Definition:")
-                    resultLIST.append(content["def"])
-                    resultLIST.append("## Synonyms:")
-                    resultLIST.append("\n".join(content["synonyms"]))
-                    resultLIST.append("============")
+        if matches_amis:
+            for k in matches_amis:
+                if k in amisDICT_01:
+                    for content in amisDICT_01[k]["definitions"]:
+                        resultLIST.append(f"## Match Entry: {k}")
+                        resultLIST.append("## Definition:")
+                        resultLIST.append(content["def"])
+                        resultLIST.append("## Synonyms:")
+                        resultLIST.append("\n".join(content["synonyms"]))
+                        resultLIST.append("============")
+                if k in amisDICT_02:
+                    for content in amisDICT_02[k]["definitions"]:
+                        resultLIST.append(f"## Match Entry: {k}")
+                        resultLIST.append("## Definition:")
+                        resultLIST.append(content["def"])
+                        resultLIST.append("## Synonyms:")
+                        resultLIST.append("\n".join(content["synonyms"]))
+                        resultLIST.append("============")
 
     elif dictSTR == "siraya":
         matches_siraya = queryPat.findall(keySTR_siraya)
