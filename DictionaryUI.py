@@ -112,67 +112,46 @@ def FuzzyQuery(word, dictSTR="amis") -> list:   #NCaN
     querySTR = "".join(queryLIST)
     queryPat = re.compile(querySTR)
     if dictSTR == "amis":
-        keySTR_amis01 = "\n".join([k for k in amisDICT_01])
-        matches_amis01 = set([q.group(0) for q in queryPat.finditer(keySTR_amis01)]) #queryPat.findall(k) != []:
-        matches_amis01 = sorted(matches_amis01)
-        keySTR_amis02 = "\n".join([k for k in amisDICT_02])
-        matches_amis02 = set([q.group(0) for q in queryPat.finditer(keySTR_amis02)]) #queryPat.findall(k) != []:
-        matches_amis02 = sorted(matches_amis02)
-        if matches_amis01:
-            for k in matches_amis01:
-                try:
-                    for content in amisDICT_01[k]["definitions"]:
-                        resultLIST.append(f"## Match Entry: {k}")
-                        resultLIST.append("## Definition:")
-                        resultLIST.append(content["def"])
-                        resultLIST.append("## Synonyms:")
-                        resultLIST.append("\n".join(content["synonyms"]))
-                        resultLIST.append("============")
-                except:
-                    pass
-        if matches_amis02:
-            for k in matches_amis02:
-                try:
-                    for content in amisDICT_02[k]["definitions"]:
-                        resultLIST.append(f"## Match Entry: {k}")
-                        resultLIST.append("## Definition:")
-                        resultLIST.append(content["def"])
-                        resultLIST.append("## Synonyms:")
-                        resultLIST.append("\n".join(content["synonyms"]))
-                        resultLIST.append("============")
-                except:
-                    pass
+        matches_amis = queryPat.findall(keySTR_amis)
+        matches_amis = sorted(matches_amis)
+    if matches_amis:
+        for k in matches_amis:
+            if k in amisDICT_01:
+                for content in amisDICT_01[k]["definitions"]:
+                    resultLIST.append(f"## Match Entry: {k}")
+                    resultLIST.append("## Definition:")
+                    resultLIST.append(content["def"])
+                    resultLIST.append("## Synonyms:")
+                    resultLIST.append("\n".join(content["synonyms"]))
+                    resultLIST.append("============")
+            if k in amisDICT_02:
+                for content in amisDICT_02[k]["definitions"]:
+                    resultLIST.append(f"## Match Entry: {k}")
+                    resultLIST.append("## Definition:")
+                    resultLIST.append(content["def"])
+                    resultLIST.append("## Synonyms:")
+                    resultLIST.append("\n".join(content["synonyms"]))
+                    resultLIST.append("============")
+
     elif dictSTR == "siraya":
-        keySTR_siraya01 = "\n".join([k for k in sirayaDICT_01])
-        matches_siraya01 = set([q.group(0) for q in queryPat.finditer(keySTR_siraya01)]) #queryPat.findall(k) != []:
-        matches_siraya01 = sorted(matches_siraya01)
-        keySTR_siraya02 = "\n".join([k for k in sirayaDICT_02])
-        matches_siraya02 = set([q.group(0) for q in queryPat.finditer(keySTR_siraya02)]) #queryPat.findall(k) != []:
-        matches_siraya02 = sorted(matches_siraya02)
-        if matches_siraya01:
-            for k in matches_siraya01:
+        matches_siraya = queryPat.findall(keySTR_siraya)
+        matches_siraya = sorted(matches_siraya)
+        if matches_siraya:
+            for k in matches_siraya:
                 if k in sirayaDICT_01:
-                    try:
-                        resultLIST.append(f"## Match Entry: {k}")
-                        resultLIST.append("## Definition:")
-                        resultLIST.append(sirayaDICT_01[k]["definitions"][0]["def"])
-                        resultLIST.append("## Synonyms:")
-                        resultLIST.append("\n".join(sirayaDICT_01[k]["definitions"][0]["synonyms"]))
-                        resultLIST.append("============")
-                    except:
-                        pass
-        if matches_siraya02:
-            for k in matches_siraya02:
+                    resultLIST.append(f"## Match Entry: {k}")
+                    resultLIST.append("## Definition:")
+                    resultLIST.append(sirayaDICT_01[k]["definitions"][0]["def"])
+                    resultLIST.append("## Synonyms:")
+                    resultLIST.append("\n".join(sirayaDICT_01[k]["definitions"][0]["synonyms"]))
+                    resultLIST.append("============")
                 if k in sirayaDICT_02:
-                    try:
-                        resultLIST.append(f"## Match Entry: {k}")
-                        resultLIST.append("## Definition:")
-                        resultLIST.append(sirayaDICT_02[k]["definitions"][0]["def"])
-                        resultLIST.append("## Synonyms:")
-                        resultLIST.append("\n".join(sirayaDICT_02[k]["definitions"][0]["synonyms"]))
-                        resultLIST.append("============")
-                    except:
-                        pass
+                    resultLIST.append(f"## Match Entry: {k}")
+                    resultLIST.append("## Definition:")
+                    resultLIST.append(sirayaDICT_02[k]["definitions"][0]["def"])
+                    resultLIST.append("## Synonyms:")
+                    resultLIST.append("\n".join(sirayaDICT_02[k]["definitions"][0]["synonyms"]))
+                    resultLIST.append("============")
     return resultLIST
 
 def PartialQuery(word, dictSTR="amis") -> list:  #?kaNCa?
