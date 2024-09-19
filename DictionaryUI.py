@@ -230,7 +230,53 @@ def PartialQuery(word, dictSTR="amis") -> list:  #?kaNCa?
 class DictionaryApp(App):
     """Searches a dictionary API as-you-type."""
 
-    CSS_PATH = "css/dictionary.tcss"
+    #CSS_PATH = "css/dictionary.tcss"
+    CSS = """Screen {
+    background: $panel;
+}
+
+Input {
+    dock: top;
+    margin: 1 0;
+}
+
+#head-container {
+    background: $background 50%;
+    margin: 0 0 0 0;
+
+    border: tall $background;
+    height: 1;
+}
+.head {
+    width: 50%;
+    border: solid red;
+
+}
+
+#amis-results {
+    width: 100%;
+    height: 100%;
+    border: solid red;
+}
+
+#siraya-results {
+    width: 100%;
+    height: 100%;
+    border: solid red;
+}
+
+#results-container {
+    background: $background 50%;
+    margin: 0 0 1 0;
+    height: 100%;
+    overflow: hidden auto;
+    border: tall $background;
+}
+
+
+#results-container:focus {
+    border: tall $accent;
+}"""
     BINDINGS = [
         ("ctrl+q", "quit", "Quit"),
     ]
