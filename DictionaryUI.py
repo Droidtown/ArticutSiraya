@@ -69,14 +69,14 @@ def MatchingQuery(queryLIST, dictSTR="amis") -> list:
                     resultLIST.append(content["def"])
                     resultLIST.append("## Synonyms: \n")
                     resultLIST.append("\n".join(map(lambda s: "- "+s, content["synonyms"])))
-                    resultLIST.append("============")
+                    resultLIST.append("\n============")
             if q in amisDICT_02:
                 for content in amisDICT_02[q]["definitions"]:
                     resultLIST.append("## Definition: \n")
                     resultLIST.append(content["def"])
                     resultLIST.append("## Synonyms: \n")
                     resultLIST.append("\n".join(map(lambda s: "- "+s, content["synonyms"])))
-                    resultLIST.append("============")
+                    resultLIST.append("\n============")
     elif dictSTR == "siraya":
         for q in queryLIST:
             if q in sirayaDICT_01:
@@ -97,7 +97,7 @@ def FuzzyQuery(word, dictSTR="amis") -> list:   #NCaN
     resultLIST = []
     patternDICT = {"C":"[bcdfghjklmnpqrstvxz]",
                    "V":"[aeiuowyj]",
-                   "N":"([mn]|ng)",
+                   "N":"(?:ng|[mn])",
                    "L":"[rl]",
                    "B":"[bpdtkg]"
                    }
@@ -113,7 +113,7 @@ def FuzzyQuery(word, dictSTR="amis") -> list:   #NCaN
     queryPat = re.compile(querySTR)
     if dictSTR == "amis":
         matches_amis = queryPat.findall(keySTR_amis)
-        matches_amis = sorted(matches_amis)
+        matches_amis = set(sorted(matches_amis))
         if matches_amis:
             for k in matches_amis:
                 if k in amisDICT_01:
@@ -123,7 +123,7 @@ def FuzzyQuery(word, dictSTR="amis") -> list:   #NCaN
                         resultLIST.append(content["def"])
                         resultLIST.append("## Synonyms: \n")
                         resultLIST.append("\n".join(map(lambda s: "- "+s, content["synonyms"])))
-                        resultLIST.append("============")
+                        resultLIST.append("\n============")
                 if k in amisDICT_02:
                     for content in amisDICT_02[k]["definitions"]:
                         resultLIST.append(f"## Match Entry: {k} \n")
@@ -131,11 +131,11 @@ def FuzzyQuery(word, dictSTR="amis") -> list:   #NCaN
                         resultLIST.append(content["def"])
                         resultLIST.append("## Synonyms: \n")
                         resultLIST.append("\n".join(map(lambda s: "- "+s, content["synonyms"])))
-                        resultLIST.append("============")
+                        resultLIST.append("\n============")
 
     elif dictSTR == "siraya":
         matches_siraya = queryPat.findall(keySTR_siraya)
-        matches_siraya = sorted(matches_siraya)
+        matches_siraya = set(sorted(matches_siraya))
         if matches_siraya:
             for k in matches_siraya:
                 if k in sirayaDICT_01:
@@ -144,14 +144,14 @@ def FuzzyQuery(word, dictSTR="amis") -> list:   #NCaN
                     resultLIST.append(sirayaDICT_01[k]["definitions"][0]["def"])
                     resultLIST.append("## Synonyms: \n")
                     resultLIST.append("\n".join(map(lambda s: "- "+s, sirayaDICT_01[k]["definitions"][0]["synonyms"])))
-                    resultLIST.append("============")
+                    resultLIST.append("\n============")
                 if k in sirayaDICT_02:
-                    resultLIST.append(f"## Match Entry: {k}")
+                    resultLIST.append(f"## Match Entry: {k} \n")
                     resultLIST.append("## Definition: \n")
                     resultLIST.append(sirayaDICT_02[k]["definitions"][0]["def"])
                     resultLIST.append("## Synonyms: \n")
                     resultLIST.append("\n".join(map(lambda s: "- "+s, sirayaDICT_02[k]["definitions"][0]["synonyms"])))
-                    resultLIST.append("============")
+                    resultLIST.append("\n============")
     return resultLIST
 
 def PartialQuery(word, dictSTR="amis") -> list:  #?kaNCa?
@@ -163,7 +163,7 @@ def PartialQuery(word, dictSTR="amis") -> list:  #?kaNCa?
             word = word.replace("?", "[a-z]+")
         patternDICT = {"C":"[bcdfghjklmnpqrstvxz]",
                        "V":"[aeiuowyj]",
-                       "N":"([mn]|ng)",
+                       "N":"(?:ng|[mn])",
                        "L":"[rl]",
                        "B":"[bpdtkg]"
                        }
@@ -173,13 +173,13 @@ def PartialQuery(word, dictSTR="amis") -> list:  #?kaNCa?
                 queryLIST.append(patternDICT[char])  #["[bpdtkg]"]
             else:
                 queryLIST.append(char)               #["[bpdtkg]", "o", "b"]
-        global G_querySTR
+        #global G_querySTR
         querySTR = "".join(queryLIST)
         queryPat = re.compile(querySTR)
         if dictSTR == "amis":
             #matches_amis = set([q.group(0) for q in queryPat.findall(keySTR_amis)]) #queryPat.findall(k) != []:
             matches_amis = queryPat.findall(keySTR_amis)
-            matches_amis = sorted(matches_amis)
+            matches_amis = set(sorted(matches_amis))
 
             #matches_amis02 = set([q.group(0) for q in queryPat.finditer(keySTR_amis02)]) #queryPat.findall(k) != []:
             #matches_amis02 = sorted(matches_amis02)
@@ -192,7 +192,7 @@ def PartialQuery(word, dictSTR="amis") -> list:  #?kaNCa?
                             resultLIST.append(content["def"])
                             resultLIST.append("## Synonyms: \n")
                             resultLIST.append("\n".join(map(lambda s: "- "+s, content["synonyms"])))
-                            resultLIST.append("============")
+                            resultLIST.append("\n============")
                     if k in amisDICT_02:
                         for content in amisDICT_02[k]["definitions"]:
                             resultLIST.append(f"## Match Entry: {k} \n")
@@ -200,12 +200,12 @@ def PartialQuery(word, dictSTR="amis") -> list:  #?kaNCa?
                             resultLIST.append(content["def"])
                             resultLIST.append("## Synonyms: \n")
                             resultLIST.append("\n".join(map(lambda s: "- "+s, content["synonyms"])))
-                            resultLIST.append("============")
+                            resultLIST.append("\n============")
 
         elif dictSTR == "siraya":
             #matches_siraya = set([q.group(0) for q in queryPat.finditer(keySTR_siraya)]) #queryPat.findall(k) != []:
             matches_siraya = queryPat.findall(keySTR_siraya)
-            matches_siraya = sorted(matches_siraya)
+            matches_siraya = set(sorted(matches_siraya))
 
             #matches_siraya02 = set([q.group(0) for q in queryPat.finditer(keySTR_siraya02)]) #queryPat.findall(k) != []:
             #matches_siraya02 = sorted(matches_siraya02)
@@ -217,14 +217,14 @@ def PartialQuery(word, dictSTR="amis") -> list:  #?kaNCa?
                         resultLIST.append(sirayaDICT_01[k]["definitions"][0]["def"])
                         resultLIST.append("## Synonyms: \n")
                         resultLIST.append("\n".join(map(lambda s: "- "+s, sirayaDICT_01[k]["definitions"][0]["synonyms"])))
-                        resultLIST.append("============")
+                        resultLIST.append("\n============")
                     if k in sirayaDICT_02:
                         resultLIST.append(f"## Match Entry: {k} \n")
                         resultLIST.append("## Definition: \n")
                         resultLIST.append(sirayaDICT_02[k]["definitions"][0]["def"])
                         resultLIST.append("## Synonyms: \n")
                         resultLIST.append("\n".join(map(lambda s: "- "+s, sirayaDICT_02[k]["definitions"][0]["synonyms"])))
-                        resultLIST.append("============")
+                        resultLIST.append("\n============")
     return resultLIST
 
 class DictionaryApp(App):
@@ -376,6 +376,6 @@ Input {
 if __name__ == "__main__":
     app = DictionaryApp()
     app.run()
-    #word = "?vuil?"
+    #word = "vuV?"
     #result = PartialQuery(word, dictSTR="siraya")
-    #pprint(result)
+    #print(result)
